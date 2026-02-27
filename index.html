@@ -841,7 +841,49 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 }
 
 .change-pw-btn:hover { color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.05); }
-.print-area { display: none; }
+/* ── BACKUP BANNER ── */
+.backup-banner {
+  background: #fff8ec;
+  border: 1.5px solid #f0d080;
+  border-radius: var(--r);
+  padding: 13px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 14px;
+  color: #7a5800;
+}
+
+.backup-banner strong { font-weight: 700; }
+.backup-banner-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.backup-dismiss { background: none; border: none; color: #b08040; cursor: pointer; font-size: 18px; padding: 0 4px; line-height: 1; }
+.backup-dismiss:hover { color: #7a5800; }
+
+/* ── EXPORT/IMPORT ── */
+.data-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 9px;
+  border: none;
+  background: none;
+  color: rgba(255,255,255,0.38);
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 2px;
+}
+
+.data-btn:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.7); }
+
+/* ── PRINT ── */
 @media print {
   .sidebar, .topbar, .no-print { display: none !important; }
   .main { margin-left: 0; }
@@ -1019,6 +1061,10 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       <button class="api-btn" onclick="openModal('modalApiKey')">🔑 API Key Settings</button>
       <button class="change-pw-btn" onclick="openModal('modalChangePw')" style="margin-top:6px">🔒 Change Password</button>
       <button class="change-pw-btn" onclick="logout()">↩ Lock App</button>
+      <div style="border-top:1px solid rgba(255,255,255,0.07);margin:8px 0"></div>
+      <button class="data-btn" onclick="exportData(false)">📥 Export Data Backup</button>
+      <button class="data-btn" onclick="document.getElementById('importInput').click()">📤 Import Data Backup</button>
+      <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(event)">
     </div>
   </aside>
 
@@ -1044,6 +1090,13 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
         <div id="setupBanner" class="setup-banner">
           <strong>Setup required:</strong> Add your Anthropic API key to enable AI features.
           <button class="btn btn-ghost btn-sm" style="margin-left:10px" onclick="openModal('modalApiKey')">Add Key →</button>
+        </div>
+        <div id="backupBanner" style="display:none" class="backup-banner">
+          <span>💾 <strong>Time for a backup!</strong> <span id="backupDaysText"></span></span>
+          <div class="backup-banner-actions">
+            <button class="btn btn-sm" style="background:#f0d080;color:#7a5800;border:none;font-weight:700" onclick="exportData(true)">Download Backup</button>
+            <button class="backup-dismiss" onclick="dismissBackupBanner()" title="Remind me later">×</button>
+          </div>
         </div>
         <div id="overdueBanner"></div>
 
@@ -1369,6 +1422,106 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
 <script>
 // ═══════════════════════════════════════
+// EXPORT / IMPORT / BACKUP
+// ═══════════════════════════════════════
+function exportData(fromBanner) {
+  const payload = {
+    version: 5,
+    exportedAt: new Date().toISOString(),
+    clients: S.clients,
+    templates: S.templates
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toLocaleDateString('en-US').replace(/\//g, '-');
+  a.href = url;
+  a.download = `bcba-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  // Record export time and reset banner
+  localStorage.setItem('bcba3_lastExport', Date.now().toString());
+  hideBanner('backupBanner');
+  if (fromBanner) alert('Backup downloaded! ✓ Save it somewhere safe like iCloud Drive or your Downloads folder.');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.clients && !data.templates) { alert('This file doesn\'t look like a valid BCBA Assistant backup.'); return; }
+      if (!confirm(`This will replace all current data with the backup from ${new Date(data.exportedAt).toLocaleDateString()}.\n\nAre you sure? This cannot be undone.`)) return;
+      if (data.clients) S.clients = data.clients;
+      if (data.templates) S.templates = data.templates;
+      saveState();
+      renderClients();
+      renderTemplates();
+      renderDashboard();
+      activeClientId = null;
+      alert('Data restored successfully! ✓');
+    } catch(err) {
+      alert('Could not read the backup file. Make sure it\'s a valid .json export from this app.');
+    }
+  };
+  reader.readAsText(file);
+  // Reset the input so the same file can be re-imported if needed
+  event.target.value = '';
+}
+
+function checkBackupReminder() {
+  const lastExport = localStorage.getItem('bcba3_lastExport');
+  const dismissed = sessionStorage.getItem('bcba3_backupDismissed');
+  if (dismissed) return; // Already dismissed this session
+
+  const banner = document.getElementById('backupBanner');
+  const daysText = document.getElementById('backupDaysText');
+
+  if (!lastExport) {
+    // Never backed up — show if they have any client data
+    if (S.clients.length > 0) {
+      daysText.textContent = "You haven't backed up your data yet.";
+      banner.style.display = 'flex';
+    }
+    return;
+  }
+
+  const daysSince = Math.floor((Date.now() - parseInt(lastExport)) / 86400000);
+  if (daysSince >= 7) {
+    daysText.textContent = `Last backup was ${daysSince} day${daysSince !== 1 ? 's' : ''} ago.`;
+    banner.style.display = 'flex';
+  }
+}
+
+function dismissBackupBanner() {
+  // Dismiss for this session only — will reappear next time they open the app
+  sessionStorage.setItem('bcba3_backupDismissed', '1');
+  hideBanner('backupBanner');
+}
+
+function hideBanner(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+}
+
+// ═══════════════════════════════════════
+// AUTO-FILL CLIENT INITIALS
+// ═══════════════════════════════════════
+function autoFillInitials() {
+  if (!activeClientId) return;
+  const client = getClient(activeClientId);
+  if (!client) return;
+  const fields = ['bipClient','rbtClient','prepClient','guideClient','handoutClient'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.value) el.value = client.initials;
+  });
+}
+
+// ═══════════════════════════════════════
 // PASSWORD / LOGIN
 // ═══════════════════════════════════════
 const DEFAULT_PW = 'bcba2024';
@@ -1452,6 +1605,7 @@ function init() {
   renderTemplates();
   updateApiStatus();
   renderDashboard();
+  checkBackupReminder();
   checkSession();
 }
 
@@ -1486,6 +1640,9 @@ function showPage(page, btn) {
   const info = t[page]||[page,''];
   document.getElementById('tbTitle').textContent = info[0];
   document.getElementById('tbSub').textContent = info[1];
+  // Auto-fill initials on generator pages
+  if (['bip','rbt','parent'].includes(page)) autoFillInitials();
+  if (page === 'dashboard') checkBackupReminder();
   closeSidebar();
 }
 
