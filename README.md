@@ -104,12 +104,14 @@ See current open items there. To add a new one:
 
 | Version | Notes |
 |---------|-------|
-| v1 | Initial build — basic notes, behavior plan, parent training, BT comms |
-| v2 | Full rebuild — client profiles, BIP generator, RBT program sheets, parent training tabs, I'm Stuck chat, note templates, speech-to-text, monitoring schedule |
-| v3 | Editable goals/templates, multi-select templates, larger text, Nunito/Quicksand fonts, dashboard overview, BT comms removed |
-| v4 | Copy bug fix (notes + templates), password login screen, Change Password + Lock App in sidebar |
-| v5 | Export/import data backup, weekly backup reminder banner, auto-fill client initials on generator pages |
-| v6 | Document upload (PDF/image → auto-extract goals & targets with review screen), per-section copy on BIP, Copy for Central Reach on BIP and RBT, RBT field-by-field copy buttons |
+| v0 | Initial build — basic notes, behavior plan, parent training, BT comms |
+| v0.1 | Full rebuild — client profiles, BIP generator, RBT program sheets, parent training tabs, I'm Stuck chat, note templates, speech-to-text, monitoring schedule |
+| v0.2 | Editable goals/templates, multi-select templates, larger text, Nunito/Quicksand fonts, dashboard overview, BT comms removed |
+| v1 | Copy bug fix (notes + templates), password login screen, Change Password + Lock App in sidebar |
+| v2 | Export/import data backup, weekly backup reminder banner, auto-fill client initials on generator pages |
+| v3 | Document upload (PDF/image → auto-extract goals & targets with review screen), per-section copy on BIP, Copy for Central Reach on BIP and RBT, RBT field-by-field copy buttons |
+| v3.1 | Fixed Add Client box appearance |
+| v3.2 | Added monitoring functionality to use UX inputs of Targets and Goals as a dropdown |
 
 ---
 
