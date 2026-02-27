@@ -1,4 +1,4 @@
-# BCBA Assistant ✨
+# BCBA Assistant
 
 A clinical support tool built for a Board Certified Behavior Analyst (BCBA). Helps streamline the creation of behavior intervention plans, RBT program sheets, parent training materials, and session documentation.
 
