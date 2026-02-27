@@ -1126,7 +1126,19 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 <div class="overlay" id="modalAddMonitor">
   <div class="modal">
     <div class="modal-title">Add Monitoring Item</div>
-    <div class="fg"><label>Goal / Behavior to Monitor</label><input type="text" id="monGoal" placeholder="e.g. Elopement frequency"></div>
+
+    <div class="fg">
+      <label>Select from Goals / Targets</label>
+      <select id="monGoalSelect" onchange="handleMonitorSelect(this.value)" style="margin-bottom:8px">
+        <option value="">— Pick from existing goals or targets —</option>
+      </select>
+    </div>
+
+    <div class="fg">
+      <label>Goal / Behavior to Monitor <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-muted);font-size:11px">— edit or type your own</span></label>
+      <input type="text" id="monGoal" placeholder="e.g. Elopement frequency">
+    </div>
+
     <div class="fg2">
       <div class="fg"><label>Start Date</label><input type="text" id="monDate" placeholder="e.g. 2/26/2025"></div>
       <div class="fg"><label>Tracking Frequency</label>
@@ -1311,7 +1323,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
           <div id="ct-monitoring" style="display:none">
             <div class="btn-row" style="margin-bottom:14px">
-              <button class="btn btn-primary btn-sm" onclick="openModal('modalAddMonitor')">＋ Add Monitoring Item</button>
+              <button class="btn btn-primary btn-sm" onclick="openAddMonitor()">＋ Add Monitoring Item</button>
             </div>
             <div id="monitorList"></div>
           </div>
@@ -2457,6 +2469,66 @@ function deleteTarget(id) {
 // ═══════════════════════════════════════
 // MONITORING
 // ═══════════════════════════════════════
+function openAddMonitor() {
+  const client = getClient(activeClientId);
+  const select = document.getElementById('monGoalSelect');
+
+  // Reset fields
+  document.getElementById('monGoal').value = '';
+  document.getElementById('monDate').value = '';
+  document.getElementById('monLastDate').value = '';
+  document.getElementById('monFreq').value = 'weekly';
+
+  // Build grouped dropdown from client's goals and targets
+  let options = '<option value="">— Pick from existing goals or targets —</option>';
+
+  const goals = client?.goals || [];
+  const targets = client?.targets?.filter(t => t.status === 'active') || [];
+  const masteredTargets = client?.targets?.filter(t => t.status === 'mastered') || [];
+
+  if (goals.length) {
+    options += '<optgroup label="── Goals ──">';
+    goals.forEach(g => {
+      options += `<option value="${escapeHtml(g.main)}">🎯 ${escapeHtml(g.main)}</option>`;
+      g.subs.forEach(s => {
+        options += `<option value="${escapeHtml(s.text)}">　↳ ${escapeHtml(s.text)}</option>`;
+      });
+    });
+    options += '</optgroup>';
+  }
+
+  if (targets.length) {
+    options += '<optgroup label="── Active Targets ──">';
+    targets.forEach(t => {
+      options += `<option value="${escapeHtml(t.name)}">📌 ${escapeHtml(t.name)}</option>`;
+    });
+    options += '</optgroup>';
+  }
+
+  if (masteredTargets.length) {
+    options += '<optgroup label="── Mastered Targets ──">';
+    masteredTargets.forEach(t => {
+      options += `<option value="${escapeHtml(t.name)}">✓ ${escapeHtml(t.name)}</option>`;
+    });
+    options += '</optgroup>';
+  }
+
+  if (!goals.length && !targets.length && !masteredTargets.length) {
+    options += '<option value="" disabled>No goals or targets added yet — type below</option>';
+  }
+
+  select.innerHTML = options;
+  openModal('modalAddMonitor');
+}
+
+function handleMonitorSelect(value) {
+  if (value) {
+    document.getElementById('monGoal').value = value;
+    // Reset the dropdown back to placeholder so it's clear the text field is the source of truth
+    document.getElementById('monGoalSelect').value = '';
+  }
+}
+
 function saveMonitor() {
   const client = getClient(activeClientId);
   if (!client) return;
@@ -2464,7 +2536,7 @@ function saveMonitor() {
   const date = document.getElementById('monDate').value.trim();
   const freq = document.getElementById('monFreq').value;
   const lastDate = document.getElementById('monLastDate').value.trim();
-  if (!goal) { alert('Please enter a goal.'); return; }
+  if (!goal) { alert('Please select or enter a goal/behavior to monitor.'); return; }
   client.monitoring.push({ id: Date.now().toString(), goal, date, freq, lastDate });
   saveState();
   renderMonitoring(client);
