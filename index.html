@@ -841,7 +841,109 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 }
 
 .change-pw-btn:hover { color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.05); }
-/* ── BACKUP BANNER ── */
+/* ── RBT FIELD COPY ── */
+.rbt-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rbt-field:last-child { border-bottom: none; }
+
+.rbt-field-label {
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+  width: 200px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.rbt-field-value {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.rbt-field-copy {
+  flex-shrink: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Nunito', sans-serif;
+}
+
+.rbt-field-copy:hover { background: var(--sage-light); color: var(--sage-dark); border-color: var(--sage); }
+
+.rbt-fields-wrap {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 14px;
+  background: var(--surface);
+}
+
+/* ── CR COPY BUTTON ── */
+.btn-cr {
+  background: #1a6b3c;
+  color: white;
+  font-size: 13px;
+}
+
+.btn-cr:hover { background: #145530; }
+
+/* ── DOC REVIEW ── */
+.review-section {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.review-section-head {
+  padding: 10px 14px;
+  background: var(--surface2);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-mid);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.review-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 14px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.review-item input[type=checkbox] { margin-top: 3px; flex-shrink: 0; }
+
+.review-item-text {
+  flex: 1;
+  line-height: 1.6;
+  outline: none;
+  border-radius: 4px;
+  padding: 1px 4px;
+  min-width: 0;
+}
+
+.review-item-text:focus { background: var(--sage-light); }
 .backup-banner {
   background: #fff8ec;
   border: 1.5px solid #f0d080;
@@ -910,7 +1012,58 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 <body>
 
 <!-- ══════════ MODALS ══════════ -->
-<div class="overlay" id="modalAddClient">
+<!-- ══ DOCUMENT UPLOAD MODAL ══ -->
+<div class="overlay" id="modalUploadDoc">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-title">📄 Import from Document</div>
+
+    <div style="background:var(--sage-light);border:1.5px solid #b0d0b5;border-radius:10px;padding:14px 16px;margin-bottom:18px;font-size:13px;line-height:1.7;color:var(--sage-dark)">
+      <strong>What this does:</strong> Upload a clinical document (assessment report, behavior plan, IEP, or any document listing goals and targets) and the AI will read it and extract the client's goals, sub-goals, and targets automatically — saving you from re-typing everything manually.<br><br>
+      <strong>Works best with:</strong> PDF exports from Central Reach, assessment summaries, IEP documents, or photos of printed reports.<br><br>
+      <strong>Privacy note:</strong> The document content is sent to Anthropic's API for reading. Use documents with initials only where possible, consistent with how you use the rest of this tool.
+    </div>
+
+    <div style="background:var(--amber-light);border:1.5px solid #e8d0a0;border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:#7a5800">
+      ⚠️ <strong>Always review before saving.</strong> The AI extraction is a starting point — you'll confirm or edit everything before it's added to the client profile.
+    </div>
+
+    <div class="fg">
+      <label>Select Document (PDF or Image)</label>
+      <input type="file" id="docUploadInput" accept=".pdf,.png,.jpg,.jpeg,.heic" style="font-size:14px;padding:8px;border:1.5px solid var(--border);border-radius:10px;width:100%;background:var(--bg)">
+    </div>
+
+    <div class="fg">
+      <label>Any context to help the AI (optional)</label>
+      <input type="text" id="docUploadContext" placeholder="e.g. This is an IEP from school. Focus on communication and behavior goals.">
+    </div>
+
+    <div id="docUploadError" style="color:var(--rose);font-size:13px;margin-bottom:8px;display:none"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modalUploadDoc')">Cancel</button>
+      <button class="btn btn-primary" id="docUploadBtn" onclick="processDocumentUpload()">📄 Read Document</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DOCUMENT REVIEW MODAL ══ -->
+<div class="overlay" id="modalDocReview">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-title">✅ Review Extracted Data</div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6">Review what was found in the document. Uncheck anything you don't want to add. Edit any text by clicking it. Then click Save to add to the client profile.</p>
+
+    <div id="docReviewContent"></div>
+
+    <div id="docReviewError" style="color:var(--rose);font-size:13px;margin-top:8px;display:none"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modalDocReview')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveExtractedData()">✓ Save to Client Profile</button>
+    </div>
+  </div>
+</div>
+
+
   <div class="modal">
     <div class="modal-title">Add New Client</div>
     <div class="fg2">
@@ -1132,6 +1285,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
           <div id="ct-goals">
             <div class="btn-row" style="margin-bottom:14px">
               <button class="btn btn-primary btn-sm" onclick="openModal('modalAddGoal')">＋ Add Goal</button>
+              <button class="btn btn-ghost btn-sm" onclick="openUploadDoc()" title="Upload a clinical document to auto-extract goals and targets">📄 Import from Document</button>
             </div>
             <div id="goalsList"></div>
           </div>
@@ -1210,14 +1364,15 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
           <div class="card">
             <div class="card-head">BIP Draft <span class="badge badge-terra" id="bipClientBadge"></span></div>
             <div class="alert-amber no-print">⚠️ Review carefully. Verify function matches assessment. Edit before finalizing.</div>
-            <div class="tsec"><button class="tsec-head" onclick="toggleTsec('bip-behavior')">Behavior Definition <span>▾</span></button><div class="tsec-body" id="bip-behavior"></div></div>
-            <div class="tsec"><button class="tsec-head" onclick="toggleTsec('bip-function')">Function <span>▾</span></button><div class="tsec-body" id="bip-function"></div></div>
-            <div class="tsec"><button class="tsec-head" onclick="toggleTsec('bip-antecedents')">Antecedents <span>▾</span></button><div class="tsec-body" id="bip-antecedents"></div></div>
-            <div class="tsec"><button class="tsec-head" onclick="toggleTsec('bip-reinforcers')">Reinforcers <span>▾</span></button><div class="tsec-body" id="bip-reinforcers"></div></div>
-            <div class="tsec"><button class="tsec-head" onclick="toggleTsec('bip-proactive')">Proactive Strategies <span>▾</span></button><div class="tsec-body" id="bip-proactive"></div></div>
-            <div class="tsec"><button class="tsec-head" onclick="toggleTsec('bip-reactive')">Reactive Strategies <span>▾</span></button><div class="tsec-body" id="bip-reactive"></div></div>
+            <div class="tsec"><button class="tsec-head" onclick="toggleTsec('bip-behavior')">Behavior Definition <span>▾</span></button><div class="tsec-body" id="bip-behavior"></div><div style="padding:6px 14px 10px;display:flex;justify-content:flex-end"><button class="rbt-field-copy" onclick="copySection('bip-behavior','Behavior Definition')">📋 Copy section</button></div></div>
+            <div class="tsec"><button class="tsec-head" onclick="toggleTsec('bip-function')">Function <span>▾</span></button><div class="tsec-body" id="bip-function"></div><div style="padding:6px 14px 10px;display:flex;justify-content:flex-end"><button class="rbt-field-copy" onclick="copySection('bip-function','Function')">📋 Copy section</button></div></div>
+            <div class="tsec"><button class="tsec-head" onclick="toggleTsec('bip-antecedents')">Antecedents <span>▾</span></button><div class="tsec-body" id="bip-antecedents"></div><div style="padding:6px 14px 10px;display:flex;justify-content:flex-end"><button class="rbt-field-copy" onclick="copySection('bip-antecedents','Antecedents')">📋 Copy section</button></div></div>
+            <div class="tsec"><button class="tsec-head" onclick="toggleTsec('bip-reinforcers')">Reinforcers <span>▾</span></button><div class="tsec-body" id="bip-reinforcers"></div><div style="padding:6px 14px 10px;display:flex;justify-content:flex-end"><button class="rbt-field-copy" onclick="copySection('bip-reinforcers','Reinforcers')">📋 Copy section</button></div></div>
+            <div class="tsec"><button class="tsec-head" onclick="toggleTsec('bip-proactive')">Proactive Strategies <span>▾</span></button><div class="tsec-body" id="bip-proactive"></div><div style="padding:6px 14px 10px;display:flex;justify-content:flex-end"><button class="rbt-field-copy" onclick="copySection('bip-proactive','Proactive Strategies')">📋 Copy section</button></div></div>
+            <div class="tsec"><button class="tsec-head" onclick="toggleTsec('bip-reactive')">Reactive Strategies <span>▾</span></button><div class="tsec-body" id="bip-reactive"></div><div style="padding:6px 14px 10px;display:flex;justify-content:flex-end"><button class="rbt-field-copy" onclick="copySection('bip-reactive','Reactive Strategies')">📋 Copy section</button></div></div>
             <div class="btn-row">
               <button class="btn btn-ghost btn-sm" onclick="copyEl('bipFullText')">📋 Copy All</button>
+              <button class="btn btn-cr btn-sm" onclick="copyBIPForCR()">📋 Copy for Central Reach</button>
               <button class="btn btn-sage btn-sm" onclick="printBIP()">🖨️ Print / PDF</button>
             </div>
             <div id="bipFullText" style="display:none"></div>
@@ -1258,12 +1413,15 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
         <div id="rbtOutput" style="display:none">
           <div class="card">
             <div class="card-head">Program Sheet <span class="badge badge-slate" id="rbtClientBadge"></span></div>
-            <div class="output" id="rbtResult"></div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:4px">Each field has its own copy button — paste directly into the matching field in Central Reach.</p>
+            <div class="rbt-fields-wrap" id="rbtFieldsWrap"></div>
             <div class="btn-row">
-              <button class="btn btn-ghost btn-sm" onclick="copyText('rbtResult')">📋 Copy</button>
+              <button class="btn btn-ghost btn-sm" onclick="copyText('rbtRawHidden')">📋 Copy All</button>
+              <button class="btn btn-cr btn-sm" onclick="copyText('rbtRawHidden')">📋 Copy for Central Reach</button>
               <button class="btn btn-sage btn-sm" onclick="printRBT()">🖨️ Print / PDF</button>
               <button class="btn btn-ghost btn-sm" onclick="addAnotherRBT()">＋ Another Target</button>
             </div>
+            <div id="rbtRawHidden" style="display:none"></div>
           </div>
         </div>
       </div>
@@ -1421,6 +1579,350 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 <div class="print-area" id="printArea"></div>
 
 <script>
+// ═══════════════════════════════════════
+// COPY HELPERS
+// ═══════════════════════════════════════
+function copySection(elId, label) {
+  const text = document.getElementById(elId).textContent.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    // Brief visual feedback on the button
+    const btns = document.querySelectorAll('.rbt-field-copy');
+    btns.forEach(b => { if (b.getAttribute('onclick')?.includes(elId)) { const orig = b.textContent; b.textContent = '✓ Copied!'; setTimeout(() => b.textContent = orig, 1500); } });
+  });
+}
+
+function copyBIPForCR() {
+  const sections = [
+    ['Behavior Definition', 'bip-behavior'],
+    ['Function', 'bip-function'],
+    ['Antecedents', 'bip-antecedents'],
+    ['Reinforcers', 'bip-reinforcers'],
+    ['Proactive Strategies', 'bip-proactive'],
+    ['Reactive Strategies', 'bip-reactive']
+  ];
+  const text = sections.map(([label, id]) => {
+    const content = document.getElementById(id).textContent.trim();
+    return `${label.toUpperCase()}\n${content}`;
+  }).join('\n\n');
+  navigator.clipboard.writeText(text).then(() => alert('BIP copied for Central Reach! ✓\nPaste it into the notes or BIP field in CR.'));
+}
+
+// ═══════════════════════════════════════
+// RBT FIELD-BY-FIELD RENDER
+// ═══════════════════════════════════════
+const RBT_FIELDS = [
+  'Procedures/Other Notes',
+  'SD',
+  'Definition of desired behavior / correct response',
+  'Stimuli Presentation',
+  'Materials',
+  'Prompting Strategies',
+  'Definition for Undesired Target Behaviors',
+  'Error Correction Procedure',
+  'Reinforcement',
+  'Environment/Context',
+  'Target Presentation',
+  'Trials'
+];
+
+function renderRBTFields(rawText) {
+  const wrap = document.getElementById('rbtFieldsWrap');
+  const lines = rawText.split('\n');
+  const parsed = {};
+  let currentField = null;
+  let currentVal = [];
+
+  lines.forEach(line => {
+    const matchedField = RBT_FIELDS.find(f => line.startsWith(f + ':'));
+    if (matchedField) {
+      if (currentField) parsed[currentField] = currentVal.join('\n').trim();
+      currentField = matchedField;
+      currentVal = [line.slice(matchedField.length + 1).trim()];
+    } else if (currentField) {
+      currentVal.push(line);
+    }
+  });
+  if (currentField) parsed[currentField] = currentVal.join('\n').trim();
+
+  wrap.innerHTML = RBT_FIELDS.map(field => {
+    const val = parsed[field] || '—';
+    const fieldId = 'rbtf_' + field.replace(/[^a-z0-9]/gi, '_');
+    return `<div class="rbt-field">
+      <div class="rbt-field-label">${field}</div>
+      <div class="rbt-field-value" id="${fieldId}">${val}</div>
+      <button class="rbt-field-copy" onclick="copyFieldValue('${fieldId}', this)">📋 Copy</button>
+    </div>`;
+  }).join('');
+
+  // Store raw text for Copy All
+  document.getElementById('rbtRawHidden').textContent = rawText;
+}
+
+function copyFieldValue(elId, btn) {
+  const text = document.getElementById(elId).textContent.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    btn.style.background = 'var(--sage-light)';
+    btn.style.color = 'var(--sage-dark)';
+    setTimeout(() => { btn.textContent = orig; btn.style.background = ''; btn.style.color = ''; }, 1500);
+  });
+}
+
+// ═══════════════════════════════════════
+// DOCUMENT UPLOAD & EXTRACTION
+// ═══════════════════════════════════════
+let extractedDocData = null;
+
+function openUploadDoc() {
+  if (!activeClientId) { alert('Please select a client first.'); return; }
+  if (!S.apiKey) { alert('Please add your API key first.'); openModal('modalApiKey'); return; }
+  document.getElementById('docUploadInput').value = '';
+  document.getElementById('docUploadContext').value = '';
+  document.getElementById('docUploadError').style.display = 'none';
+  openModal('modalUploadDoc');
+}
+
+async function processDocumentUpload() {
+  const fileInput = document.getElementById('docUploadInput');
+  const context = document.getElementById('docUploadContext').value.trim();
+  const errEl = document.getElementById('docUploadError');
+  const btn = document.getElementById('docUploadBtn');
+
+  if (!fileInput.files.length) { errEl.textContent = 'Please select a file.'; errEl.style.display = 'block'; return; }
+
+  const file = fileInput.files[0];
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  if (file.size > maxSize) { errEl.textContent = 'File is too large. Please use a file under 5MB.'; errEl.style.display = 'block'; return; }
+
+  errEl.style.display = 'none';
+  btn.innerHTML = '<span class="ld"><span></span><span></span><span></span></span> Reading document…';
+  btn.disabled = true;
+
+  try {
+    const base64 = await fileToBase64(file);
+    const isImage = file.type.startsWith('image/');
+    const isPDF = file.type === 'application/pdf';
+
+    if (!isImage && !isPDF) {
+      errEl.textContent = 'Please upload a PDF or image file (JPG, PNG, HEIC).';
+      errEl.style.display = 'block';
+      btn.innerHTML = '📄 Read Document'; btn.disabled = false;
+      return;
+    }
+
+    const mediaType = isPDF ? 'application/pdf' : file.type;
+    const docType = isPDF ? 'document' : 'image';
+
+    const prompt = `You are helping a BCBA extract clinical information from a document to populate a client profile in a therapy management tool.
+
+${context ? 'Context provided: ' + context : ''}
+
+Please extract ALL of the following from this document and return ONLY valid JSON in this exact format:
+{
+  "goals": [
+    {
+      "main": "Main goal name",
+      "subs": ["sub-goal 1", "sub-goal 2"]
+    }
+  ],
+  "targets": [
+    {
+      "name": "Target name",
+      "status": "active",
+      "notes": "any relevant notes"
+    }
+  ],
+  "behaviors": [
+    {
+      "name": "Behavior name",
+      "notes": "brief description if available"
+    }
+  ],
+  "reinforcers": "comma separated list of reinforcers if found"
+}
+
+Rules:
+- status must be "active", "mastered", or "discontinued"
+- If you cannot find goals, return an empty array
+- If you cannot find targets, return an empty array  
+- Extract as much as you can find — be thorough
+- Return ONLY the JSON object, no other text`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': S.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: docType,
+              source: { type: 'base64', media_type: mediaType, data: base64 }
+            },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    if (!response.ok) {
+      const e = await response.json().catch(() => {});
+      throw new Error(e?.error?.message || 'API error ' + response.status);
+    }
+
+    const data = await response.json();
+    const text = data.content?.[0]?.text || '';
+    const clean = text.replace(/```json|```/g, '').trim();
+    extractedDocData = JSON.parse(clean);
+
+    btn.innerHTML = '📄 Read Document'; btn.disabled = false;
+    closeModal('modalUploadDoc');
+    showDocReview(extractedDocData);
+
+  } catch(err) {
+    errEl.textContent = 'Error reading document: ' + err.message;
+    errEl.style.display = 'block';
+    btn.innerHTML = '📄 Read Document'; btn.disabled = false;
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = () => reject(new Error('Could not read file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function showDocReview(data) {
+  const content = document.getElementById('docReviewContent');
+  let html = '';
+
+  // Goals
+  if (data.goals?.length) {
+    html += `<div class="review-section">
+      <div class="review-section-head">🎯 Goals Found (${data.goals.length})</div>`;
+    data.goals.forEach((g, gi) => {
+      html += `<div class="review-item">
+        <input type="checkbox" checked id="goal_check_${gi}">
+        <div style="flex:1">
+          <div contenteditable="true" class="review-item-text" id="goal_main_${gi}" style="font-weight:700">${escapeHtml(g.main)}</div>
+          ${g.subs.map((s, si) => `<div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <input type="checkbox" checked id="sub_check_${gi}_${si}" style="margin-left:16px">
+            <div contenteditable="true" class="review-item-text" id="sub_${gi}_${si}" style="color:var(--text-mid)">${escapeHtml(s)}</div>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  } else {
+    html += `<div class="review-section"><div class="review-section-head">🎯 Goals — None found</div></div>`;
+  }
+
+  // Targets
+  if (data.targets?.length) {
+    html += `<div class="review-section">
+      <div class="review-section-head">📌 Targets Found (${data.targets.length})</div>`;
+    data.targets.forEach((t, ti) => {
+      html += `<div class="review-item">
+        <input type="checkbox" checked id="target_check_${ti}">
+        <div style="flex:1">
+          <div contenteditable="true" class="review-item-text" id="target_name_${ti}" style="font-weight:600">${escapeHtml(t.name)}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${t.status}${t.notes ? ' · ' + t.notes : ''}</div>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  // Behaviors
+  if (data.behaviors?.length) {
+    html += `<div class="review-section">
+      <div class="review-section-head">⚠️ Behaviors Found (${data.behaviors.length}) — will be added as targets</div>`;
+    data.behaviors.forEach((b, bi) => {
+      html += `<div class="review-item">
+        <input type="checkbox" checked id="behavior_check_${bi}">
+        <div contenteditable="true" class="review-item-text" id="behavior_name_${bi}" style="flex:1;font-weight:600">${escapeHtml(b.name)}</div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  // Reinforcers note
+  if (data.reinforcers) {
+    html += `<div style="background:var(--sage-light);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--sage-dark);margin-bottom:8px">
+      <strong>Reinforcers found:</strong> ${escapeHtml(data.reinforcers)}<br>
+      <span style="font-size:12px;opacity:0.8">These will be noted — you can add them manually to BIP/RBT fields.</span>
+    </div>`;
+  }
+
+  if (!data.goals?.length && !data.targets?.length && !data.behaviors?.length) {
+    html = `<div class="empty"><div class="empty-icon">🤔</div><div class="empty-title">Nothing found</div><div class="empty-text">The document didn't appear to contain recognizable goals or targets. Try a different document or add context about what type of document it is.</div></div>`;
+  }
+
+  content.innerHTML = html;
+  openModal('modalDocReview');
+}
+
+function saveExtractedData() {
+  const client = getClient(activeClientId);
+  if (!client || !extractedDocData) return;
+
+  let goalsAdded = 0, targetsAdded = 0;
+
+  // Save checked goals
+  (extractedDocData.goals || []).forEach((g, gi) => {
+    const checked = document.getElementById('goal_check_' + gi)?.checked;
+    if (!checked) return;
+    const mainEl = document.getElementById('goal_main_' + gi);
+    const main = mainEl?.textContent.trim() || g.main;
+    const subs = (g.subs || []).map((s, si) => {
+      const subChecked = document.getElementById(`sub_check_${gi}_${si}`)?.checked;
+      if (!subChecked) return null;
+      const subEl = document.getElementById(`sub_${gi}_${si}`);
+      return { id: Date.now().toString() + Math.random(), text: subEl?.textContent.trim() || s, done: false };
+    }).filter(Boolean);
+    client.goals.push({ id: Date.now().toString() + Math.random(), main, subs });
+    goalsAdded++;
+  });
+
+  // Save checked targets
+  (extractedDocData.targets || []).forEach((t, ti) => {
+    const checked = document.getElementById('target_check_' + ti)?.checked;
+    if (!checked) return;
+    const nameEl = document.getElementById('target_name_' + ti);
+    const name = nameEl?.textContent.trim() || t.name;
+    client.targets.push({ id: Date.now().toString() + Math.random(), name, status: t.status || 'active', notes: t.notes || '' });
+    targetsAdded++;
+  });
+
+  // Save checked behaviors as targets
+  (extractedDocData.behaviors || []).forEach((b, bi) => {
+    const checked = document.getElementById('behavior_check_' + bi)?.checked;
+    if (!checked) return;
+    const nameEl = document.getElementById('behavior_name_' + bi);
+    const name = nameEl?.textContent.trim() || b.name;
+    client.targets.push({ id: Date.now().toString() + Math.random(), name, status: 'active', notes: 'Imported from document' });
+    targetsAdded++;
+  });
+
+  saveState();
+  renderGoals(client);
+  renderTargets(client);
+  closeModal('modalDocReview');
+  extractedDocData = null;
+  alert(`✓ Saved! ${goalsAdded} goal${goalsAdded !== 1 ? 's' : ''} and ${targetsAdded} target${targetsAdded !== 1 ? 's' : ''} added to ${client.initials}'s profile.`);
+}
+
 // ═══════════════════════════════════════
 // EXPORT / IMPORT / BACKUP
 // ═══════════════════════════════════════
@@ -2303,14 +2805,16 @@ async function generateRBT() {
   const result = await callClaude(ABA_SYS, prompt);
   btn.innerHTML='✨ Generate Program Sheet'; btn.disabled=false;
   if (!result) return;
-  document.getElementById('rbtResult').textContent=result;
   document.getElementById('rbtClientBadge').textContent=`${client} · ${target}`;
+  renderRBTFields(result);
   document.getElementById('rbtOutput').style.display='block';
   document.getElementById('rbtOutput').scrollIntoView({behavior:'smooth'});
 }
 
 function addAnotherRBT() {
   document.getElementById('rbtOutput').style.display='none';
+  document.getElementById('rbtFieldsWrap').innerHTML='';
+  document.getElementById('rbtRawHidden').textContent='';
   document.getElementById('rbtTarget').value='';
   document.getElementById('rbtDesc').value='';
   document.getElementById('rbtNotes').value='';
@@ -2459,7 +2963,8 @@ function printBIP() {
 
 function printRBT() {
   const badge=document.getElementById('rbtClientBadge').textContent;
-  document.getElementById('printArea').innerHTML=`<div style="font-family:Georgia,serif;max-width:680px;margin:0 auto;padding:32px;color:#2d2820"><h1 style="font-size:20px;margin-bottom:4px">RBT Program Sheet</h1><p style="font-size:12px;color:#888;margin-bottom:24px">${badge} · ${new Date().toLocaleDateString()}</p><pre style="white-space:pre-wrap;font-size:14px;line-height:1.9;font-family:Georgia,serif">${document.getElementById('rbtResult').textContent}</pre></div>`;
+  const text=document.getElementById('rbtRawHidden').textContent;
+  document.getElementById('printArea').innerHTML=`<div style="font-family:Georgia,serif;max-width:680px;margin:0 auto;padding:32px;color:#2d2820"><h1 style="font-size:20px;margin-bottom:4px">RBT Program Sheet</h1><p style="font-size:12px;color:#888;margin-bottom:24px">${badge} · ${new Date().toLocaleDateString()}</p><pre style="white-space:pre-wrap;font-size:14px;line-height:1.9;font-family:Georgia,serif">${text}</pre></div>`;
   window.print();
 }
 
