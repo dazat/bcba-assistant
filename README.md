@@ -1,4 +1,4 @@
-# BCBA Assistant
+# BCBA Assistant ✨
 
 A clinical support tool built for a Board Certified Behavior Analyst (BCBA). Helps streamline the creation of behavior intervention plans, RBT program sheets, parent training materials, and session documentation.
 
@@ -9,14 +9,16 @@ Built as a single-file web app — no installation required. Open in any browser
 ## Features
 
 - **Dashboard** — All-clients overview with monitoring alerts and at-a-glance stats
-- **BIP Generator** — AI-assisted Behavior Intervention Plan drafts following company template structure (operational definition, onset/offset, function, antecedents, reinforcers, proactive and reactive strategies)
-- **RBT Program Sheet Generator** — Generates target descriptions in the exact field format used by the clinical team (SD, prompting strategies, error correction, reinforcement, etc.)
+- **BIP Generator** — AI-assisted Behavior Intervention Plan drafts following company template structure (operational definition, onset/offset, function, antecedents, reinforcers, proactive and reactive strategies). Per-section copy buttons and a one-click Copy for Central Reach button.
+- **RBT Program Sheet Generator** — Generates target descriptions in the exact field format used by the clinical team (SD, prompting strategies, error correction, reinforcement, etc.). Each field has its own copy button for direct paste into Central Reach.
 - **Parent Training** — Three tools: pre-meeting agenda, during-meeting guide (follows session flow), and printable parent handout
 - **I'm Stuck** — Conversational AI clinical brainstorm for when you're stumped on a behavior or goal. Remembers context across the conversation.
-- **Note Templates** — Reusable session note phrases for Central Reach. Multi-select and copy as a block.
-- **Client Profiles** — Per-client storage of goals (with sub-goals), active/mastered/discontinued targets, monitoring schedule with overdue alerts, parent meeting log, and session notes
+- **Note Templates** — Reusable session note phrases for Central Reach. Multi-select and copy as a block. Editable in place.
+- **Client Profiles** — Per-client storage of goals (with editable sub-goals), active/mastered/discontinued targets, monitoring schedule with overdue alerts, parent meeting log, and session notes
+- **Document Import** — Upload a PDF or image of a clinical document (assessment, IEP, CR export) and the AI extracts goals and targets automatically. Review and edit before saving.
 - **Speech-to-Text** — Dictation support on all major input fields
 - **Password Login** — Single shared password with session persistence. Changeable from the sidebar.
+- **Export / Import** — Download a full data backup as a JSON file. Restore from any previous backup. Weekly reminder if backup is overdue.
 - **Print / PDF** — Clean print output for BIPs, RBT program sheets, and parent handouts
 
 ---
@@ -48,9 +50,9 @@ This app is hosted via GitHub Pages at:
 
 ---
 
-## Updating the App - By developer & Claude Code
+## Updating the App — By developer & Claude Code
 
--- Via Github uploads
+-- Via GitHub uploads
 
 ---
 
@@ -61,7 +63,19 @@ This app is hosted via GitHub Pages at:
 - No client data is sent to any external server
 - Client names are stored as initials only (e.g. `JaDo` for Jane Doe)
 - AI generation sends only the text entered into each form field to Anthropic's API — no stored client data is sent automatically
+- Document uploads (PDF/image) send document content to Anthropic's API for reading — use documents with initials only where possible
 - The app does not collect analytics or usage data of any kind
+
+---
+
+## Data Backup
+
+Client data lives in the browser and can be cleared by browser updates, cache clears, or switching devices. To protect against data loss:
+
+- Use **Export Data Backup** in the sidebar regularly to download a `.json` backup file
+- Save backup files to iCloud Drive or another safe location accessible from all devices
+- Use **Import Data Backup** to restore from any previous backup, or to migrate data to a new device
+- The app will remind you to back up if 7 or more days have passed since your last export
 
 ---
 
@@ -71,6 +85,7 @@ This app is hosted via GitHub Pages at:
 - Password protection is client-side only — sufficient for casual privacy, not a substitute for HIPAA-compliant storage
 - This tool is a clinical aid only — all AI-generated content must be reviewed and edited by the BCBA before use
 - Speech-to-text requires Chrome or Safari
+- Document import works best with clean PDF exports — photo quality affects extraction accuracy
 
 ---
 
@@ -93,6 +108,8 @@ See current open items there. To add a new one:
 | v2 | Full rebuild — client profiles, BIP generator, RBT program sheets, parent training tabs, I'm Stuck chat, note templates, speech-to-text, monitoring schedule |
 | v3 | Editable goals/templates, multi-select templates, larger text, Nunito/Quicksand fonts, dashboard overview, BT comms removed |
 | v4 | Copy bug fix (notes + templates), password login screen, Change Password + Lock App in sidebar |
+| v5 | Export/import data backup, weekly backup reminder banner, auto-fill client initials on generator pages |
+| v6 | Document upload (PDF/image → auto-extract goals & targets with review screen), per-section copy on BIP, Copy for Central Reach on BIP and RBT, RBT field-by-field copy buttons |
 
 ---
 
