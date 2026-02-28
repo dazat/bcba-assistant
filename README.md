@@ -112,6 +112,7 @@ See current open items there. To add a new one:
 | v3 | Document upload (PDF/image → auto-extract goals & targets with review screen), per-section copy on BIP, Copy for Central Reach on BIP and RBT, RBT field-by-field copy buttons |
 | v3.1 | Fixed Add Client box appearance |
 | v3.2 | Added monitoring functionality to use UX inputs of Targets and Goals as a dropdown |
+| v4 | Added Client Profile Dropdown to read into prompts for strategy brainstorming |
 
 ---
 
