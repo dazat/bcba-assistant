@@ -1132,6 +1132,29 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 </div>
 
 
+<!-- ══ SAVE STRATEGY FROM CHAT MODAL ══ -->
+<div class="overlay" id="modalSaveStrategy">
+  <div class="modal">
+    <div class="modal-title">💡 Save Strategy to Profile</div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.6">Give this strategy a title and set its status. Edit the text to trim it down if needed.</p>
+    <div class="fg"><label>Title</label><input type="text" id="modalStratTitle" placeholder="e.g. Visual transition schedule"></div>
+    <div class="fg"><label>Strategy Text</label><textarea id="modalStratText" rows="5"></textarea></div>
+    <div class="fg">
+      <label>Status</label>
+      <select id="modalStratStatus">
+        <option value="trying">🔄 Trying / To Try</option>
+        <option value="worked">✅ Worked</option>
+        <option value="didnt-work">❌ Didn't Work</option>
+      </select>
+    </div>
+    <input type="hidden" id="modalStratClientId">
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modalSaveStrategy')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveStrategyFromModal()">💡 Save to Profile</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="modalAddClient">
   <div class="modal">
     <div class="modal-title">Add New Client</div>
@@ -1281,7 +1304,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
       <button class="nav-btn" data-page="bip" onclick="showPage('bip',this)"><span class="ni">📋</span> BIP Generator</button>
       <button class="nav-btn" data-page="rbt" onclick="showPage('rbt',this)"><span class="ni">📝</span> RBT Program Sheet</button>
       <button class="nav-btn" data-page="parent" onclick="showPage('parent',this)"><span class="ni">👨‍👩‍👧</span> Parent Training</button>
-      <button class="nav-btn" data-page="stuck" onclick="showPage('stuck',this)"><span class="ni">🧠</span> I'm Stuck</button>
+      <button class="nav-btn" data-page="stuck" onclick="showPage('stuck',this)"><span class="ni">🧠</span> Brainstorming</button>
       <button class="nav-btn" data-page="templates" onclick="showPage('templates',this)"><span class="ni">🗂</span> Note Templates</button>
     </div>
 
@@ -1361,6 +1384,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
             <button class="tab" onclick="switchClientTab('monitoring',this)">📊 Monitoring</button>
             <button class="tab" onclick="switchClientTab('meetings',this)">🗒 Meeting Log</button>
             <button class="tab" onclick="switchClientTab('notes',this)">✏️ Session Notes</button>
+            <button class="tab" onclick="switchClientTab('strategies',this)">💡 Strategies</button>
           </div>
 
           <div id="ct-goals">
@@ -1415,6 +1439,36 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
               </div>
             </div>
             <div id="notesList"></div>
+          </div>
+
+          <div id="ct-strategies" style="display:none">
+            <div class="card">
+              <div class="card-head">💡 Strategies Log</div>
+              <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.6">Save intervention ideas here — from Brainstorming sessions or your own notes. Use this as a reference log of what's been tried or is worth trying.</p>
+              <div class="btn-row" style="margin-bottom:0">
+                <button class="btn btn-primary btn-sm" onclick="openAddStrategyInline()">＋ Add Strategy</button>
+              </div>
+            </div>
+
+            <div id="addStrategyForm" style="display:none" class="card">
+              <div class="card-head">New Strategy Entry</div>
+              <div class="fg"><label>Title</label><input type="text" id="stratTitle" placeholder="e.g. Visual transition schedule"></div>
+              <div class="fg"><label>Description / Notes</label><textarea id="stratText" rows="4" placeholder="Describe the strategy, how to implement it, or what was suggested..."></textarea></div>
+              <div class="fg">
+                <label>Status</label>
+                <select id="stratStatus">
+                  <option value="trying">🔄 Trying / To Try</option>
+                  <option value="worked">✅ Worked</option>
+                  <option value="didnt-work">❌ Didn't Work</option>
+                </select>
+              </div>
+              <div class="btn-row">
+                <button class="btn btn-ghost btn-sm" onclick="closeAddStrategyInline()">Cancel</button>
+                <button class="btn btn-primary btn-sm" onclick="saveStrategy()">Save Strategy</button>
+              </div>
+            </div>
+
+            <div id="strategiesList"></div>
           </div>
         </div>
       </div>
@@ -1656,7 +1710,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
         </div>
 
         <div class="card" style="margin-bottom:10px">
-          <div class="card-head">🧠 Clinical Brainstorm <span class="badge badge-sage">I'm Stuck</span></div>
+          <div class="card-head">🧠 Brainstorming <span class="badge badge-sage">Clinical Brainstorm</span></div>
           <p style="font-size:14px;color:var(--text-muted);margin-bottom:8px">Describe a situation and brainstorm ideas together. Context carries through the conversation.</p>
           <div style="display:flex;justify-content:flex-end">
             <button class="btn btn-ghost btn-sm" onclick="clearChat()">🗑 Clear conversation</button>
@@ -1671,7 +1725,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
             </div>
           </div>
           <div class="chat-input-row">
-            <textarea id="chatInput" rows="2" placeholder="What are you stuck on?" onkeydown="chatKeydown(event)"></textarea>
+            <textarea id="chatInput" rows="2" placeholder="What are you working through?" onkeydown="chatKeydown(event)"></textarea>
             <div style="display:flex;flex-direction:column;gap:6px">
               <button class="mic-btn" id="micChat" onclick="toggleMic('chatInput','micChat')" style="height:46px;padding:0 12px">🎤</button>
               <button class="btn btn-primary btn-sm" id="chatSendBtn" onclick="sendChat()" disabled style="height:46px">Send</button>
@@ -2294,6 +2348,130 @@ function autoFillInitials() {
 }
 
 // ═══════════════════════════════════════
+// STRATEGIES LOG
+// ═══════════════════════════════════════
+const STRAT_STATUS = {
+  'trying':      { label: 'Trying / To Try', icon: '🔄', color: '#e8f0fe', border: '#a8c0f0', text: '#2a4a8a' },
+  'worked':      { label: 'Worked',          icon: '✅', color: '#e6f4ea', border: '#a0d0a8', text: '#1a5c28' },
+  'didnt-work':  { label: "Didn't Work",     icon: '❌', color: '#fce8e8', border: '#f0a8a8', text: '#8a2a2a' }
+};
+
+function openAddStrategyInline() {
+  document.getElementById('stratTitle').value = '';
+  document.getElementById('stratText').value = '';
+  document.getElementById('stratStatus').value = 'trying';
+  document.getElementById('addStrategyForm').style.display = 'block';
+  document.getElementById('stratTitle').focus();
+}
+
+function closeAddStrategyInline() {
+  document.getElementById('addStrategyForm').style.display = 'none';
+}
+
+function saveStrategy() {
+  const client = getClient(activeClientId);
+  if (!client) return;
+  const title = document.getElementById('stratTitle').value.trim();
+  const text = document.getElementById('stratText').value.trim();
+  const status = document.getElementById('stratStatus').value;
+  if (!title) { alert('Please enter a title for this strategy.'); return; }
+  if (!client.strategies) client.strategies = [];
+  client.strategies.unshift({
+    id: Date.now().toString(),
+    title,
+    text,
+    status,
+    date: new Date().toLocaleDateString()
+  });
+  saveState();
+  renderStrategies(client);
+  closeAddStrategyInline();
+}
+
+function openSaveStrategyFromChat(msgId, clientId) {
+  const msgEl = document.getElementById(msgId);
+  const rawText = msgEl ? msgEl.innerText.trim() : '';
+  document.getElementById('modalStratTitle').value = '';
+  document.getElementById('modalStratText').value = rawText.substring(0, 1000);
+  document.getElementById('modalStratStatus').value = 'trying';
+  document.getElementById('modalStratClientId').value = clientId;
+  openModal('modalSaveStrategy');
+}
+
+function saveStrategyFromModal() {
+  const clientId = document.getElementById('modalStratClientId').value;
+  const client = getClient(clientId);
+  if (!client) return;
+  const title = document.getElementById('modalStratTitle').value.trim();
+  const text = document.getElementById('modalStratText').value.trim();
+  const status = document.getElementById('modalStratStatus').value;
+  if (!title) { alert('Please enter a title.'); return; }
+  if (!client.strategies) client.strategies = [];
+  client.strategies.unshift({
+    id: Date.now().toString(),
+    title,
+    text,
+    status,
+    date: new Date().toLocaleDateString(),
+    source: 'brainstorm'
+  });
+  saveState();
+  // If we're currently viewing this client's strategies tab, refresh it
+  if (activeClientId === clientId) renderStrategies(client);
+  closeModal('modalSaveStrategy');
+  alert(`💡 Strategy saved to ${client.initials}'s profile!`);
+}
+
+function renderStrategies(client) {
+  const el = document.getElementById('strategiesList');
+  if (!el) return;
+  const strats = client.strategies || [];
+  if (!strats.length) {
+    el.innerHTML = `<div style="color:var(--text-muted);font-size:14px;padding:16px 0;text-align:center">No strategies saved yet.<br><span style="font-size:12px">Use the Brainstorming tab and click 💡 Save to profile, or add one manually above.</span></div>`;
+    return;
+  }
+  el.innerHTML = strats.map(s => {
+    const st = STRAT_STATUS[s.status] || STRAT_STATUS['trying'];
+    return `<div class="card" style="margin-bottom:12px;border-left:4px solid ${st.border}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:15px;margin-bottom:4px">${escapeHtml(s.title)}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">${s.date}${s.source === 'brainstorm' ? ' · from Brainstorming' : ''}</div>
+          ${s.text ? `<div style="font-size:13px;line-height:1.65;color:var(--text-mid);white-space:pre-wrap">${escapeHtml(s.text)}</div>` : ''}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+          <span style="background:${st.color};border:1px solid ${st.border};color:${st.text};border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap">${st.icon} ${st.label}</span>
+          <div style="display:flex;gap:6px">
+            <select onchange="updateStrategyStatus('${s.id}',this.value)" style="font-size:11px;padding:3px 6px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif">
+              <option value="trying" ${s.status==='trying'?'selected':''}>🔄 Trying</option>
+              <option value="worked" ${s.status==='worked'?'selected':''}>✅ Worked</option>
+              <option value="didnt-work" ${s.status==='didnt-work'?'selected':''}>❌ Didn't Work</option>
+            </select>
+            <button onclick="deleteStrategy('${s.id}')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px 4px" title="Delete">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateStrategyStatus(stratId, newStatus) {
+  const client = getClient(activeClientId);
+  if (!client?.strategies) return;
+  const s = client.strategies.find(s => s.id === stratId);
+  if (s) { s.status = newStatus; saveState(); renderStrategies(client); }
+}
+
+function deleteStrategy(stratId) {
+  if (!confirm('Delete this strategy?')) return;
+  const client = getClient(activeClientId);
+  if (!client?.strategies) return;
+  client.strategies = client.strategies.filter(s => s.id !== stratId);
+  saveState();
+  renderStrategies(client);
+}
+
+// ═══════════════════════════════════════
 // PASSWORD / LOGIN
 // ═══════════════════════════════════════
 const DEFAULT_PW = 'bcba2024';
@@ -2409,7 +2587,7 @@ function showPage(page, btn) {
   document.getElementById('page-' + page).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  const t = { dashboard:['Dashboard','All clients overview'], bip:['BIP Generator','Behavior Intervention Plan'], rbt:['RBT Program Sheet','Target description generator'], parent:['Parent Training','Prep, guides & handouts'], stuck:["I'm Stuck",'Clinical brainstorm'], templates:['Note Templates','Reusable phrases for Central Reach'] };
+  const t = { dashboard:['Dashboard','All clients overview'], bip:['BIP Generator','Behavior Intervention Plan'], rbt:['RBT Program Sheet','Target description generator'], parent:['Parent Training','Prep, guides & handouts'], stuck:['Brainstorming','Clinical brainstorm & strategy log'], templates:['Note Templates','Reusable phrases for Central Reach'] };
   const info = t[page]||[page,''];
   document.getElementById('tbTitle').textContent = info[0];
   document.getElementById('tbSub').textContent = info[1];
@@ -2421,7 +2599,7 @@ function showPage(page, btn) {
 }
 
 function switchClientTab(tab, el) {
-  ['goals','targets','monitoring','meetings','notes'].forEach(t => document.getElementById('ct-'+t).style.display = t===tab?'block':'none');
+  ['goals','targets','monitoring','meetings','notes','strategies'].forEach(t => document.getElementById('ct-'+t).style.display = t===tab?'block':'none');
   document.querySelectorAll('#clientProfile .tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
 }
@@ -2503,6 +2681,7 @@ function openClientProfile(id) {
   renderMonitoring(client);
   renderMeetings(client);
   renderNotes(client);
+  renderStrategies(client);
   document.getElementById('tbSub').textContent = client.initials;
 }
 
@@ -2526,7 +2705,7 @@ function saveNewClient() {
   const g = document.getElementById('ncGoals').value.trim();
   if (!f || !l) { alert('Please enter both initials.'); return; }
   const initials = (f+l).replace(/\s/g,'');
-  const client = { id: Date.now().toString(), initials, goals:[], targets:[], monitoring:[], meetings:[], notes:[] };
+  const client = { id: Date.now().toString(), initials, goals:[], targets:[], monitoring:[], meetings:[], notes:[], strategies:[] };
   if (g) g.split(',').forEach(goal => { if (goal.trim()) client.goals.push({ id: Date.now().toString()+Math.random(), main: goal.trim(), subs:[] }); });
   S.clients.push(client);
   saveState();
@@ -3253,7 +3432,21 @@ function appendMsg(role, text) {
   const c=document.getElementById('chatMessages');
   const div=document.createElement('div');
   div.className='msg '+(role==='user'?'msg-user':'msg-ai');
-  if(role==='ai'){div.innerHTML=`<div class="msg-label">BCBA Assistant</div>${text.replace(/\n/g,'<br>')}`;} else {div.textContent=text;}
+  if (role==='ai') {
+    const msgId = 'msg_' + Date.now();
+    div.innerHTML=`<div class="msg-label">BCBA Assistant</div><div id="${msgId}">${text.replace(/\n/g,'<br>')}</div>`;
+    // Add save button if a client is selected
+    const sel = document.getElementById('stuckClientSelect');
+    if (sel?.value) {
+      const client = getClient(sel.value);
+      const saveBtn = document.createElement('div');
+      saveBtn.style.cssText = 'margin-top:8px;display:flex;justify-content:flex-end';
+      saveBtn.innerHTML = `<button onclick="openSaveStrategyFromChat('${msgId}','${sel.value}')" style="background:var(--sage-light);border:1px solid #b0d0b5;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--sage-dark);cursor:pointer;font-family:'Nunito',sans-serif">💡 Save to ${client?.initials||'profile'}</button>`;
+      div.appendChild(saveBtn);
+    }
+  } else {
+    div.textContent=text;
+  }
   c.appendChild(div);
   c.scrollTop=c.scrollHeight;
 }
