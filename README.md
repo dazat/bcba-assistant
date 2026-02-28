@@ -113,6 +113,7 @@ See current open items there. To add a new one:
 | v3.1 | Fixed Add Client box appearance |
 | v3.2 | Added monitoring functionality to use UX inputs of Targets and Goals as a dropdown |
 | v4 | Added Client Profile Dropdown to read into prompts for strategy brainstorming |
+| v5 | Added Strategies tab to client profile and renamed I'm Stuck to Brainstorming |
 
 ---
 
