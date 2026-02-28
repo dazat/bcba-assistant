@@ -841,6 +841,74 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 }
 
 .change-pw-btn:hover { color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.05); }
+/* ── CLIENT CONTEXT BAR ── */
+.ctx-bar {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 13px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow);
+}
+
+.ctx-bar-label {
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.ctx-bar select {
+  flex: 1;
+  min-width: 140px;
+  max-width: 220px;
+  padding: 7px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 9px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+}
+
+.ctx-bar select:focus { border-color: var(--sage); outline: none; }
+
+.ctx-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-mid);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ctx-toggle input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--sage); }
+
+.ctx-summary {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  min-width: 180px;
+}
+
+.ctx-summary strong { color: var(--sage-dark); font-weight: 700; }
+
+.ctx-bar.no-client { border-color: var(--border); background: var(--surface2); }
+.ctx-bar.has-client { border-color: #b0d0b5; background: var(--sage-light); }
+.ctx-bar.has-client .ctx-bar-label { color: var(--sage-dark); }
+
 /* ── RBT FIELD COPY ── */
 .rbt-field {
   display: flex;
@@ -1353,6 +1421,20 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
       <!-- ══ BIP ══ -->
       <div class="page" id="page-bip">
+
+        <!-- Client context bar -->
+        <div class="ctx-bar" id="bipCtxBar">
+          <div class="ctx-bar-label">👤 Client</div>
+          <select id="bipClientSelect" onchange="updateGeneratorContext('bip')">
+            <option value="">— No client selected —</option>
+          </select>
+          <label class="ctx-toggle">
+            <input type="checkbox" id="bipCtxToggle" checked onchange="updateGeneratorContext('bip')">
+            Include profile context
+          </label>
+          <div class="ctx-summary" id="bipCtxSummary">No client selected.</div>
+        </div>
+
         <div class="card">
           <div class="card-head">BIP Generator <span class="badge badge-sage">Behavior Intervention Plan</span></div>
           <div class="fg2">
@@ -1395,6 +1477,20 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
       <!-- ══ RBT ══ -->
       <div class="page" id="page-rbt">
+
+        <!-- Client context bar -->
+        <div class="ctx-bar" id="rbtCtxBar">
+          <div class="ctx-bar-label">👤 Client</div>
+          <select id="rbtClientSelect" onchange="updateGeneratorContext('rbt')">
+            <option value="">— No client selected —</option>
+          </select>
+          <label class="ctx-toggle">
+            <input type="checkbox" id="rbtCtxToggle" checked onchange="updateGeneratorContext('rbt')">
+            Include profile context
+          </label>
+          <div class="ctx-summary" id="rbtCtxSummary">No client selected.</div>
+        </div>
+
         <div class="card">
           <div class="card-head">RBT Program Sheet Generator</div>
           <div class="fg2">
@@ -1441,6 +1537,20 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
       <!-- ══ PARENT TRAINING ══ -->
       <div class="page" id="page-parent">
+
+        <!-- Client context bar -->
+        <div class="ctx-bar" id="parentCtxBar">
+          <div class="ctx-bar-label">👤 Client</div>
+          <select id="parentClientSelect" onchange="updateGeneratorContext('parent')">
+            <option value="">— No client selected —</option>
+          </select>
+          <label class="ctx-toggle">
+            <input type="checkbox" id="parentCtxToggle" checked onchange="updateGeneratorContext('parent')">
+            Include profile context
+          </label>
+          <div class="ctx-summary" id="parentCtxSummary">No client selected.</div>
+        </div>
+
         <div class="tabs">
           <button class="tab active" onclick="switchParentTab('prep',this)">📋 Pre-Meeting Prep</button>
           <button class="tab" onclick="switchParentTab('guide',this)">📱 During-Meeting Guide</button>
@@ -1531,16 +1641,28 @@ hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 
       <!-- ══ I'M STUCK ══ -->
       <div class="page" id="page-stuck">
+
+        <!-- Client context bar -->
+        <div class="ctx-bar" id="stuckCtxBar">
+          <div class="ctx-bar-label">👤 Client</div>
+          <select id="stuckClientSelect" onchange="updateStuckContext()">
+            <option value="">— No client selected —</option>
+          </select>
+          <label class="ctx-toggle">
+            <input type="checkbox" id="stuckCtxToggle" checked onchange="updateStuckContext()">
+            Include profile context
+          </label>
+          <div class="ctx-summary" id="stuckCtxSummary">No client selected — AI will answer general ABA questions.</div>
+        </div>
+
         <div class="card" style="margin-bottom:10px">
           <div class="card-head">🧠 Clinical Brainstorm <span class="badge badge-sage">I'm Stuck</span></div>
-          <p style="font-size:14px;color:var(--text-muted);margin-bottom:12px">Describe a situation and brainstorm ideas together. Context carries through the conversation.</p>
-          <div class="fg2">
-            <div class="fg"><label>Client context (optional)</label><input type="text" id="stuckContext" placeholder="e.g. JaDo, 8yo, ASD, limited vocal"></div>
-            <div class="fg" style="display:flex;align-items:flex-end">
-              <button class="btn btn-ghost btn-sm" onclick="clearChat()">🗑 Clear conversation</button>
-            </div>
+          <p style="font-size:14px;color:var(--text-muted);margin-bottom:8px">Describe a situation and brainstorm ideas together. Context carries through the conversation.</p>
+          <div style="display:flex;justify-content:flex-end">
+            <button class="btn btn-ghost btn-sm" onclick="clearChat()">🗑 Clear conversation</button>
           </div>
         </div>
+
         <div class="chat-wrap">
           <div class="chat-messages" id="chatMessages">
             <div class="msg msg-ai">
@@ -2023,17 +2145,152 @@ function hideBanner(id) {
 }
 
 // ═══════════════════════════════════════
-// AUTO-FILL CLIENT INITIALS
+// CLIENT CONTEXT FOR AI
+// ═══════════════════════════════════════
+
+function buildClientContext(clientId) {
+  const client = getClient(clientId);
+  if (!client) return null;
+  const lines = [`CLIENT PROFILE — ${client.initials}`];
+
+  if (client.goals?.length) {
+    lines.push('\nGOALS:');
+    client.goals.forEach(g => {
+      lines.push(`  • ${g.main}`);
+      g.subs?.forEach(s => lines.push(`    ↳ ${s.text}${s.done ? ' [completed]' : ''}`));
+    });
+  }
+
+  const active = client.targets?.filter(t => t.status === 'active') || [];
+  if (active.length) {
+    lines.push('\nACTIVE TARGETS:');
+    active.forEach(t => lines.push(`  • ${t.name}${t.notes ? ' — ' + t.notes : ''}`));
+  }
+
+  const mastered = client.targets?.filter(t => t.status === 'mastered') || [];
+  if (mastered.length) {
+    lines.push('\nMASTERED TARGETS:');
+    mastered.forEach(t => lines.push(`  • ${t.name}`));
+  }
+
+  const disc = client.targets?.filter(t => t.status === 'discontinued') || [];
+  if (disc.length) {
+    lines.push('\nDISCONTINUED TARGETS:');
+    disc.forEach(t => lines.push(`  • ${t.name}${t.notes ? ' — ' + t.notes : ''}`));
+  }
+
+  const meetings = client.meetings?.slice(0, 3) || [];
+  if (meetings.length) {
+    lines.push('\nRECENT PARENT MEETINGS:');
+    meetings.forEach(m => {
+      lines.push(`  ${m.date || 'No date'}: ${m.topics?.substring(0, 120) || ''}${m.topics?.length > 120 ? '…' : ''}`);
+      if (m.followup) lines.push(`    Follow-up: ${m.followup.substring(0, 80)}`);
+    });
+  }
+
+  const notes = client.notes?.slice(0, 2) || [];
+  if (notes.length) {
+    lines.push('\nRECENT SESSION NOTES:');
+    notes.forEach(n => lines.push(`  ${n.date}: ${n.text?.substring(0, 150) || ''}${n.text?.length > 150 ? '…' : ''}`));
+  }
+
+  return lines.join('\n');
+}
+
+function getContextSummary(client) {
+  if (!client) return 'No client selected.';
+  const goalCount = client.goals?.length || 0;
+  const activeTargets = client.targets?.filter(t => t.status === 'active').length || 0;
+  const lastMeeting = client.meetings?.[0]?.date;
+  const parts = [];
+  if (goalCount) parts.push(`${goalCount} goal${goalCount !== 1 ? 's' : ''}`);
+  if (activeTargets) parts.push(`${activeTargets} active target${activeTargets !== 1 ? 's' : ''}`);
+  if (lastMeeting) parts.push(`last meeting ${lastMeeting}`);
+  return parts.length
+    ? `<strong>${client.initials}</strong> — ${parts.join(' · ')} — profile loaded`
+    : `<strong>${client.initials}</strong> — profile loaded (no data yet)`;
+}
+
+function populateContextDropdowns() {
+  const dropdowns = ['stuckClientSelect','bipClientSelect','rbtClientSelect','parentClientSelect'];
+  dropdowns.forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const current = sel.value;
+    sel.innerHTML = '<option value="">— No client selected —</option>' +
+      S.clients.map(c => `<option value="${c.id}">${c.initials}</option>`).join('');
+    if (current && S.clients.find(c => c.id === current)) {
+      sel.value = current;
+    } else if (activeClientId) {
+      sel.value = activeClientId;
+    }
+  });
+  updateStuckContext();
+  updateGeneratorContext('bip');
+  updateGeneratorContext('rbt');
+  updateGeneratorContext('parent');
+}
+
+function updateStuckContext() {
+  const sel = document.getElementById('stuckClientSelect');
+  const toggle = document.getElementById('stuckCtxToggle');
+  const summary = document.getElementById('stuckCtxSummary');
+  const bar = document.getElementById('stuckCtxBar');
+  if (!sel || !toggle || !summary) return;
+  const clientId = sel.value;
+  const on = toggle.checked && !!clientId;
+  const client = clientId ? getClient(clientId) : null;
+  bar.className = 'ctx-bar ' + (on ? 'has-client' : 'no-client');
+  summary.innerHTML = on
+    ? getContextSummary(client)
+    : clientId
+      ? `<span style="color:var(--text-muted)">Profile context off — AI will answer generally.</span>`
+      : 'No client selected — AI will answer general ABA questions.';
+}
+
+function updateGeneratorContext(page) {
+  const sel = document.getElementById(page + 'ClientSelect');
+  const toggle = document.getElementById(page + 'CtxToggle');
+  const summary = document.getElementById(page + 'CtxSummary');
+  const bar = document.getElementById(page + 'CtxBar');
+  if (!sel || !toggle || !summary) return;
+  const clientId = sel.value;
+  const on = toggle.checked && !!clientId;
+  const client = clientId ? getClient(clientId) : null;
+  bar.className = 'ctx-bar ' + (on ? 'has-client' : 'no-client');
+  summary.innerHTML = on
+    ? getContextSummary(client)
+    : clientId
+      ? `<span style="color:var(--text-muted)">Profile context off — generating without client data.</span>`
+      : 'No client selected.';
+  // Auto-fill initials
+  if (client) {
+    const map = { bip: ['bipClient'], rbt: ['rbtClient'], parent: ['prepClient','guideClient','handoutClient'] };
+    (map[page] || []).forEach(f => { const el = document.getElementById(f); if (el) el.value = client.initials; });
+  }
+}
+
+function getSelectedContext(page) {
+  const selId = page === 'stuck' ? 'stuckClientSelect' : page + 'ClientSelect';
+  const toggleId = page === 'stuck' ? 'stuckCtxToggle' : page + 'CtxToggle';
+  const sel = document.getElementById(selId);
+  const toggle = document.getElementById(toggleId);
+  if (!sel || !toggle || !toggle.checked || !sel.value) return null;
+  return buildClientContext(sel.value);
+}
+
+// ═══════════════════════════════════════
+// AUTO-FILL (now just triggers context update)
 // ═══════════════════════════════════════
 function autoFillInitials() {
-  if (!activeClientId) return;
-  const client = getClient(activeClientId);
-  if (!client) return;
-  const fields = ['bipClient','rbtClient','prepClient','guideClient','handoutClient'];
-  fields.forEach(id => {
+  ['stuckClientSelect','bipClientSelect','rbtClientSelect','parentClientSelect'].forEach(id => {
     const el = document.getElementById(id);
-    if (el && !el.value) el.value = client.initials;
+    if (el && activeClientId) el.value = activeClientId;
   });
+  updateStuckContext();
+  updateGeneratorContext('bip');
+  updateGeneratorContext('rbt');
+  updateGeneratorContext('parent');
 }
 
 // ═══════════════════════════════════════
@@ -2120,6 +2377,7 @@ function init() {
   renderTemplates();
   updateApiStatus();
   renderDashboard();
+  populateContextDropdowns();
   checkBackupReminder();
   checkSession();
 }
@@ -2157,6 +2415,7 @@ function showPage(page, btn) {
   document.getElementById('tbSub').textContent = info[1];
   // Auto-fill initials on generator pages
   if (['bip','rbt','parent'].includes(page)) autoFillInitials();
+  if (['bip','rbt','parent','stuck'].includes(page)) populateContextDropdowns();
   if (page === 'dashboard') checkBackupReminder();
   closeSidebar();
 }
@@ -2273,6 +2532,7 @@ function saveNewClient() {
   saveState();
   renderClients();
   renderDashboard();
+  populateContextDropdowns();
   closeModal('modalAddClient');
   ['ncFirst','ncLast','ncGoals'].forEach(id => document.getElementById(id).value='');
 }
@@ -2301,6 +2561,7 @@ function deleteClient(id) {
   saveState();
   renderClients();
   renderDashboard();
+  populateContextDropdowns();
 }
 
 // ═══════════════════════════════════════
@@ -2839,6 +3100,7 @@ function extractSec(text, start, end) {
 }
 
 async function generateBIP() {
+  const clientCtx = getSelectedContext('bip');
   const client = document.getElementById('bipClient').value.trim()||'Client';
   const behavior = document.getElementById('bipBehavior').value.trim();
   const desc = document.getElementById('bipDesc').value.trim();
@@ -2849,8 +3111,13 @@ async function generateBIP() {
   const btn=document.getElementById('bipGenBtn');
   btn.innerHTML='<span class="ld"><span></span><span></span><span></span></span> Generating…';
   btn.disabled=true;
+
+  const systemPrompt = clientCtx
+    ? ABA_SYS + `\n\nYou have access to this client's full profile. Use it to inform all sections — reference known goals, targets, reinforcers, and meeting history where relevant.\n\n${clientCtx}`
+    : ABA_SYS;
+
   const prompt=`Client: ${client}\nBehavior: ${behavior}\nDescription: ${desc}\n${func?'Hypothesized Function: '+func:'Function: Derive from description'}\n${reinf?'Known Reinforcers: '+reinf:''}\n${ctx?'Additional Context: '+ctx:''}\n\nGenerate a BIP using EXACTLY these section headers:\n\n=== BEHAVIOR DEFINITION ===\nOperational definition with:\n- Onset: [topographic description of how behavior begins]\n- Offset: [topographic description of how behavior ends]\n- Example: [brief concrete example]\n- Non-example: [what does NOT count]\n\n=== FUNCTION ===\nState concisely. If derived from description only, note hypothesized.\n\n=== ANTECEDENTS ===\nTimes, activities, conditions when behavior most likely occurs.\n\n=== REINFORCERS ===\nItems, people, activities that function as reinforcers.\n\n=== PROACTIVE STRATEGIES ===\nAntecedent manipulations grounded in function. Concrete and measurable.\n\n=== REACTIVE STRATEGIES ===\nWhat to do when behavior occurs. Function-based. Include what NOT to do.`;
-  const result = await callClaude(ABA_SYS, prompt);
+  const result = await callClaude(systemPrompt, prompt);
   btn.innerHTML='✨ Generate BIP Draft'; btn.disabled=false;
   if (!result) return;
   const secs={'bip-behavior':extractSec(result,'BEHAVIOR DEFINITION','FUNCTION'),'bip-function':extractSec(result,'FUNCTION','ANTECEDENTS'),'bip-antecedents':extractSec(result,'ANTECEDENTS','REINFORCERS'),'bip-reinforcers':extractSec(result,'REINFORCERS','PROACTIVE STRATEGIES'),'bip-proactive':extractSec(result,'PROACTIVE STRATEGIES','REACTIVE STRATEGIES'),'bip-reactive':extractSec(result,'REACTIVE STRATEGIES',null)};
@@ -2862,6 +3129,7 @@ async function generateBIP() {
 }
 
 async function generateRBT() {
+  const clientCtx = getSelectedContext('rbt');
   const client=document.getElementById('rbtClient').value.trim()||'Client';
   const target=document.getElementById('rbtTarget').value.trim();
   const desc=document.getElementById('rbtDesc').value.trim();
@@ -2874,8 +3142,11 @@ async function generateRBT() {
   const btn=document.getElementById('rbtGenBtn');
   btn.innerHTML='<span class="ld"><span></span><span></span><span></span></span> Generating…';
   btn.disabled=true;
+  const systemPrompt = clientCtx
+    ? ABA_SYS + `\n\nYou have access to this client's full profile. Use it to inform the program sheet — reference existing goals, mastered targets, and known reinforcers where relevant.\n\n${clientCtx}`
+    : ABA_SYS;
   const prompt=`Client: ${client}\nTarget: ${target}\nDescription: ${desc}\nKnown Reinforcers: ${reinf||'not specified'}\nPrompting Strategies: ${prompts||'least to most'}\nEnvironment: ${env}\nTarget Presentation: ${presentation}\nNotes: ${notes||'none'}\n\nGenerate an RBT target description with EXACTLY these fields in order. Short phrases, not paragraphs:\n\nProcedures/Other Notes:\nSD:\nDefinition of desired behavior / correct response:\nStimuli Presentation:\nMaterials:\nPrompting Strategies:\nDefinition for Undesired Target Behaviors:\nError Correction Procedure:\nReinforcement:\nEnvironment/Context:\nTarget Presentation:\nTrials:`;
-  const result = await callClaude(ABA_SYS, prompt);
+  const result = await callClaude(systemPrompt, prompt);
   btn.innerHTML='✨ Generate Program Sheet'; btn.disabled=false;
   if (!result) return;
   document.getElementById('rbtClientBadge').textContent=`${client} · ${target}`;
@@ -2896,6 +3167,7 @@ function addAnotherRBT() {
 }
 
 async function generatePrep() {
+  const clientCtx = getSelectedContext('parent');
   const client=document.getElementById('prepClient').value.trim()||'Client';
   const date=document.getElementById('prepDate').value.trim();
   const topics=document.getElementById('prepTopics').value.trim();
@@ -2903,7 +3175,10 @@ async function generatePrep() {
   if (!topics) { alert('Please describe what to cover.'); return; }
   const btn=document.getElementById('prepGenBtn');
   btn.innerHTML='<span class="ld"><span></span><span></span><span></span></span> Generating…'; btn.disabled=true;
-  const result = await callClaude(ABA_SYS, `Client: ${client}\nMeeting Date: ${date||'upcoming'}\nTopics: ${topics}\n${followup?'Last meeting follow-up: '+followup:''}\n\nGenerate a BCBA pre-meeting agenda. Structure: opening check-in, follow-up items, goal updates with talking points, data points to share, feedback to deliver, closing. Bullet points. BCBA-facing, not parent-facing.`);
+  const systemPrompt = clientCtx
+    ? ABA_SYS + `\n\nYou have access to this client's full profile including meeting history. Use it to make the agenda specific and relevant.\n\n${clientCtx}`
+    : ABA_SYS;
+  const result = await callClaude(systemPrompt, `Client: ${client}\nMeeting Date: ${date||'upcoming'}\nTopics: ${topics}\n${followup?'Last meeting follow-up: '+followup:''}\n\nGenerate a BCBA pre-meeting agenda. Structure: opening check-in, follow-up items, goal updates with talking points, data points to share, feedback to deliver, closing. Bullet points. BCBA-facing, not parent-facing.`);
   btn.innerHTML='✨ Generate Agenda'; btn.disabled=false;
   if (!result) return;
   document.getElementById('prepResult').textContent=result;
@@ -2912,6 +3187,7 @@ async function generatePrep() {
 }
 
 async function generateGuide() {
+  const clientCtx = getSelectedContext('parent');
   const client=document.getElementById('guideClient').value.trim()||'Client';
   const focus=document.getElementById('guideFocus').value.trim();
   const goals=document.getElementById('guideGoals').value.trim();
@@ -2919,7 +3195,10 @@ async function generateGuide() {
   if (!goals) { alert('Please enter goals to discuss.'); return; }
   const btn=document.getElementById('guideGenBtn');
   btn.innerHTML='<span class="ld"><span></span><span></span><span></span></span> Generating…'; btn.disabled=true;
-  const result = await callClaude(ABA_SYS, `Client: ${client}\nFocus: ${focus||'general'}\nGoals/behaviors: ${goals}\n${concerns?'Family concerns: '+concerns:''}\n\nGenerate a during-meeting guide the BCBA keeps open on phone/laptop during session. Natural meeting flow: warm opening prompts, transition to goals, talking points per goal with simple language for data trends, questions to ask family, strategies to reinforce, how to handle new concerns, closing. Conversational and scannable.`);
+  const systemPrompt = clientCtx
+    ? ABA_SYS + `\n\nYou have access to this client's full profile including past meeting notes. Use them to make the during-meeting guide specific, referencing real history where helpful.\n\n${clientCtx}`
+    : ABA_SYS;
+  const result = await callClaude(systemPrompt, `Client: ${client}\nFocus: ${focus||'general'}\nGoals/behaviors: ${goals}\n${concerns?'Family concerns: '+concerns:''}\n\nGenerate a during-meeting guide the BCBA keeps open on phone/laptop during session. Natural meeting flow: warm opening prompts, transition to goals, talking points per goal with simple language for data trends, questions to ask family, strategies to reinforce, how to handle new concerns, closing. Conversational and scannable.`);
   btn.innerHTML='✨ Generate Meeting Guide'; btn.disabled=false;
   if (!result) return;
   document.getElementById('guideResult').textContent=result;
@@ -2928,6 +3207,7 @@ async function generateGuide() {
 }
 
 async function generateHandout() {
+  const clientCtx = getSelectedContext('parent');
   const client=document.getElementById('handoutClient').value.trim()||'Client';
   const topic=document.getElementById('handoutTopic').value.trim();
   const strats=document.getElementById('handoutStrats').value.trim();
@@ -2935,7 +3215,10 @@ async function generateHandout() {
   if (!topic) { alert('Please enter the topic.'); return; }
   const btn=document.getElementById('handoutGenBtn');
   btn.innerHTML='<span class="ld"><span></span><span></span><span></span></span> Generating…'; btn.disabled=true;
-  const result = await callClaude(ABA_SYS, `Client: ${client}\nTopic: ${topic}\nStrategies: ${strats||'general best practices'}\nData collection: ${data||'record each instance'}\n\nGenerate a parent take-home handout. Written for a parent with no clinical background. Include: plain language explanation of the goal, numbered steps to follow at home, brief "do not" list, quick reference reminders for fridge, simple data tracking instructions, brief encouraging note. Short sentences. Warm tone. No jargon.`);
+  const systemPrompt = clientCtx
+    ? ABA_SYS + `\n\nYou have access to this client's full profile. Use it to make the handout specific to their situation and goals.\n\n${clientCtx}`
+    : ABA_SYS;
+  const result = await callClaude(systemPrompt, `Client: ${client}\nTopic: ${topic}\nStrategies: ${strats||'general best practices'}\nData collection: ${data||'record each instance'}\n\nGenerate a parent take-home handout. Written for a parent with no clinical background. Include: plain language explanation of the goal, numbered steps to follow at home, brief "do not" list, quick reference reminders for fridge, simple data tracking instructions, brief encouraging note. Short sentences. Warm tone. No jargon.`);
   btn.innerHTML='✨ Generate Handout'; btn.disabled=false;
   if (!result) return;
   document.getElementById('handoutResult').textContent=result;
@@ -2947,8 +3230,8 @@ async function generateHandout() {
 function chatKeydown(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();} }
 
 async function sendChat() {
+  const clientCtx = getSelectedContext('stuck');
   const input=document.getElementById('chatInput');
-  const context=document.getElementById('stuckContext').value.trim();
   const text=input.value.trim();
   if (!text) return;
   S.chatHistory.push({role:'user',content:text});
@@ -2956,7 +3239,9 @@ async function sendChat() {
   input.value='';
   const btn=document.getElementById('chatSendBtn');
   btn.disabled=true; btn.innerHTML='<span class="ld"><span></span><span></span><span></span></span>';
-  const system=ABA_SYS+`\n\nYou are a trusted clinical thinking partner for a BCBA. Be collaborative, not lecture-y. Offer concrete evidence-based ABA ideas. Help brainstorm interventions, think through function, suggest assessments, develop goals. Remember the full conversation.${context?'\n\nClient context: '+context:''}`;
+  const system = clientCtx
+    ? ABA_SYS + `\n\nYou are a trusted clinical thinking partner for a BCBA. Be collaborative, not lecture-y. Offer concrete evidence-based ABA ideas. Help brainstorm interventions, think through function, suggest assessments, develop goals. Remember the full conversation.\n\nYou have full access to this client's profile. Use it to give specific, informed responses — reference their actual goals, targets, and history rather than speaking generally.\n\n${clientCtx}`
+    : ABA_SYS + `\n\nYou are a trusted clinical thinking partner for a BCBA. Be collaborative, not lecture-y. Offer concrete evidence-based ABA ideas. Help brainstorm interventions, think through function, suggest assessments, develop goals. Remember the full conversation.`;
   const result = await callClaude(system, null, S.chatHistory);
   const reply = result||'Sorry, I had trouble generating a response.';
   S.chatHistory.push({role:'assistant',content:reply});
